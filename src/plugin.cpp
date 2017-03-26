@@ -22,6 +22,7 @@
 #include "plugin.h"
 
 #include <QInputDialog.h>
+#include "basicdialog.h"
 
 
 
@@ -59,6 +60,9 @@ static int wcharToUtf8(const wchar_t* str, char** result) {
 }
 #endif
 
+// declare custom function(s)
+QString openDialog();
+
 /*********************************** Required functions ************************************/
 /*
  * If any of these required functions is not implemented, TS3 will refuse to load the plugin
@@ -68,11 +72,11 @@ static int wcharToUtf8(const wchar_t* str, char** result) {
 const char* ts3plugin_name() {
 #ifdef _WIN32
 	/* TeamSpeak expects UTF-8 encoded characters. Following demonstrates a possibility how to convert UTF-16 wchar_t into UTF-8. */
-	static char* result = NULL;  /* Static variable so it's allocated only once */
+    static char* result = NULL;  /* Static variable so it's allocated only once */
 	if(!result) {
 		const wchar_t* name = L"Poke Plugin";
 		if(wcharToUtf8(name, &result) == -1) {  /* Convert name into UTF-8 encoded result */
-			result = "Poke Plugin";  /* Conversion failed, fallback here */
+            result = (char*)"Poke Plugin";  /* Conversion failed, fallback here */
 		}
 	}
 	return result;
@@ -272,7 +276,7 @@ int ts3plugin_processCommand(uint64 serverConnectionHandlerID, const char* comma
 		case CMD_JOIN:  /* /test join <channelID> [optionalCannelPassword] */
 			if(param1) {
 				uint64 channelID = (uint64)atoi(param1);
-				char* password = param2 ? param2 : "";
+                char* password = param2 ? param2 : (char*)"";
 				char returnCode[RETURNCODE_BUFSIZE];
 				anyID myID;
 
@@ -677,13 +681,20 @@ void ts3plugin_onMenuItemEvent(uint64 serverConnectionHandlerID, enum PluginMenu
 					// poke
 
 					if(menuItemID){						
-						/*ask for input*/
-						//openDialog();
-						
+                        // ask for input using QInputDialog
+                        openDialog();
+
+                        // user your own custom dialog
+                        BasicDialog* myBasicDialog = new BasicDialog();
+                        myBasicDialog->show();
+
+                        /* I disabled the following code to focus only on the working dialog
+                         * look for "[END-DISABLED-CODE]" mark
+
 						int i = 0;
 						anyID myID;
 
-						/* Get own clientID */
+                        // Get own clientID
 					if (ts3Functions.getClientID(serverConnectionHandlerID, &myID) != ERROR_ok)
 					{
 						ts3Functions.logMessage("ERROR1", LogLevel_ERROR, "Poke Plugin", serverConnectionHandlerID);
@@ -691,11 +702,11 @@ void ts3plugin_onMenuItemEvent(uint64 serverConnectionHandlerID, enum PluginMenu
 					}
 
 					//uint64 selectedItemID;
-					/*if (ts3Functions.getChannelOfClient(serverConnectionHandlerID, myID, &selectedItemID) != ERROR_ok)
-					{
-						ts3Functions.logMessage("ERROR2", LogLevel_ERROR, "Stinger", serverConnectionHandlerID);
-						break;
-					}*/
+//					if (ts3Functions.getChannelOfClient(serverConnectionHandlerID, myID, &selectedItemID) != ERROR_ok)
+//					{
+//						ts3Functions.logMessage("ERROR2", LogLevel_ERROR, "Stinger", serverConnectionHandlerID);
+//						break;
+//					}
 
 					//anyID* selectedItemID;
 					anyID* channelClientList;
@@ -716,7 +727,7 @@ void ts3plugin_onMenuItemEvent(uint64 serverConnectionHandlerID, enum PluginMenu
 						if (clientType == 1)
 							continue;
 
-						/* poke clients in channel */
+                        // poke clients in channel
 						if (ts3Functions.requestClientPoke(serverConnectionHandlerID, channelClientList[i], "text", NULL) != ERROR_ok)
 							ts3Functions.logMessage("ERROR", LogLevel_ERROR, "Poke Plugin", serverConnectionHandlerID);
 					}
@@ -724,6 +735,8 @@ void ts3plugin_onMenuItemEvent(uint64 serverConnectionHandlerID, enum PluginMenu
 					// ts3Functions.printMessageToCurrentTab("[b][i]Successfully poked:" + i);
 
 					ts3Functions.freeMemory(channelClientList);
+
+                    *[END-DISABLED-CODE]*/
 			}
 		else
 			ts3Functions.logMessage("ERROR", LogLevel_ERROR, "Poke Plugin", serverConnectionHandlerID);
@@ -767,7 +780,7 @@ void ts3plugin_onMenuItemEvent(uint64 serverConnectionHandlerID, enum PluginMenu
 	}
 }
 
-char* openDialog()
+QString openDialog()
 {
 	bool ok;
 	QString label = QString::fromLatin1("test1", 6);
@@ -777,13 +790,10 @@ char* openDialog()
 
 	if (ok && !userinput.isEmpty()) {
 		// user entered something and pressed OK
-		return "nothing";
+        return userinput;
 	}
 	else {
 		// user entered nothing or pressed Cancel
-		int x = userinput.toInt();
-		char* buffer = "blank";
-		return buffer;
-
+        return "blank";
 	}
 }

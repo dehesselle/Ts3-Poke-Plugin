@@ -1,14 +1,14 @@
 #include "basicdialog.h"
 #include "ui_basicdialog.h"
 
-basicdialog::basicdialog(QWidget *parent) :
+BasicDialog::BasicDialog(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::basicdialog)
+    ui(new Ui::BasicDialog)
 {
     ui->setupUi(this);
 }
 
-basicdialog::~basicdialog()
+BasicDialog::~BasicDialog()
 {
     delete ui;
 }
