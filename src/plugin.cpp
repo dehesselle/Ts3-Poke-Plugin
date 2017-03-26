@@ -684,9 +684,9 @@ void ts3plugin_onMenuItemEvent(uint64 serverConnectionHandlerID, enum PluginMenu
                         // ask for input using QInputDialog
                         openDialog();
 
-                        // user your own custom dialog
-                        BasicDialog* myBasicDialog = new BasicDialog();
-                        myBasicDialog->show();
+                        // use your own custom dialog
+                        BasicDialog myBasicDialog;
+                        myBasicDialog.exec();   // this is blocking
 
                         /* I disabled the following code to focus only on the working dialog
                          * look for "[END-DISABLED-CODE]" mark
